@@ -2,7 +2,7 @@ from .abstract.abstract_repository import IRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from .models import City as dbCity, WeatherData
-from .schemas import City as dtoCity
+from .schemas import City as dtoCity, CurrentWeather as dtoForecast
 from .database import get_db
 
 
@@ -27,3 +27,7 @@ class Repository(IRepository):
             return [dtoCity(name=city.name, latitude=city.latitude, longitude=city.longitude) for city in cities]
         finally:
             await session.close()
+
+    async def update_weather_forecast(city: dtoCity, forecast: dtoForecast):
+        session = await get_db().__anext__()
+        pass

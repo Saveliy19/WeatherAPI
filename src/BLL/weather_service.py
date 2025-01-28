@@ -1,5 +1,5 @@
 from .abstract.abstract_weather_service import IWeatherService
-from DAL.schemas import City
+from DAL.schemas import City, CurrentWeather
 from typing import List
 import aiohttp
 from fastapi import HTTPException
@@ -57,6 +57,34 @@ class WeatherService(IWeatherService):
                         status_code=400,
                         detail=f"Название города {city.name} не соответствует координатам ({api_city_name})"
                     )
+                
+    async def get_current_weather_by_coordinates(self, latitude: float, longitude: float) -> CurrentWeather:
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "current": "temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m"
+        }
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                if response.status != 200:
+                    raise Exception(f"Error fetching weather data: {response.status}")
+                
+                data = await response.json()
+                current_weather_data = data.get("current")
+                current_weather_units = data.get("current_units")
+
+                weather = CurrentWeather(
+                    temperature=str(current_weather_data.get("temperature_2m")) + current_weather_units.get("temperature_2m"),
+                    wind_speed=str(current_weather_data.get("wind_speed_10m")) + current_weather_units.get("wind_speed_10m"),
+                    atmospheric_pressure=str(current_weather_data.get("surface_pressure")) + current_weather_units.get("surface_pressure"),
+                    precipitation=str(current_weather_data.get("precipitation")) + current_weather_units.get("precipitation"),
+                    humidity=str(current_weather_data.get("relative_humidity_2m")) + current_weather_units.get("relative_humidity_2m")
+                )
+
+                return weather
+
 
     async def add_city_to_tracking(self, city: City):
         if city.longitude is None or city.latitude is None:
@@ -72,7 +100,7 @@ class WeatherService(IWeatherService):
 
         
     async def fetch_weather(self, city: City):
-        tracked_cities = self.repository.get_tracked_cities()
+        tracked_cities = await self.repository.get_tracked_cities()
 
         for city in tracked_cities:
             pass
