@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from .models import Base
+from contextlib import asynccontextmanager
 
 DATABASE_URL = "sqlite+aiosqlite:///./weather.db"
 
@@ -13,6 +14,7 @@ AsyncSessionLocal = sessionmaker(
     expire_on_commit=False,
 )
 
+@asynccontextmanager
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session

@@ -19,11 +19,12 @@ class WeatherData(Base):
     __tablename__ = "weather_data"
     
     id = Column(Integer, primary_key=True, index=True)
-    temperature = Column(Float)
-    humidity = Column(Float)
-    wind_speed = Column(Float)
-    pressure = Column(Float)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    temperature = Column(String)
+    humidity = Column(String)
+    wind_speed = Column(String)
+    pressure = Column(String)
+    precipitation = Column(String)
+    timestamp = Column(DateTime, default=datetime.now())
     
     city_id = Column(Integer, ForeignKey("cities.id"))
     

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from DAL.schemas import City, CurrentWeather
+from DAL.schemas import City, HourlyForecast
 
 class IRepository(ABC):
     
@@ -13,5 +13,5 @@ class IRepository(ABC):
         pass
 
     @abstractmethod
-    async def update_weather_forecast(city: City, forecast: CurrentWeather):
+    async def update_weather_forecast(self, city: City, forecast: HourlyForecast):
         pass

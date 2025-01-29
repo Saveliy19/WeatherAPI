@@ -1,24 +1,15 @@
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
-from BLL.abstract.abstract_weather_service import IWeatherService
-from BLL.weather_service import WeatherService
-from DAL.abstract.abstract_repository import IRepository
-from DAL.repository import Repository
 from DAL.schemas import City
+from .dependencies import weather_service
+import re
 
 main_router = APIRouter()
-
-def get_city_repository() -> IRepository:
-    return Repository()
-
-def get_weather_service(repository: IRepository = Depends(get_city_repository)) -> IWeatherService:
-    return WeatherService(repository=repository)
 
 @main_router.get("/weather")
 async def get_current_weather(
     latitude: float = Query(None, description="Широта"),
-    longitude: float = Query(None, description="Долгота"),
-    weather_service: WeatherService = Depends(get_weather_service)
+    longitude: float = Query(None, description="Долгота")
 ):
     try:
         return await weather_service.get_current_weather_by_coordinates(latitude=latitude, longitude=longitude)
@@ -39,11 +30,12 @@ async def get_current_weather(
     '''
 )
 async def add_city(
-    city: str,
+    city: str = Path(..., description="Название города на английском"),
     latitude: float = Query(None, description="Широта"),
-    longitude: float = Query(None, description="Долгота"),
-    weather_service: WeatherService = Depends(get_weather_service)
+    longitude: float = Query(None, description="Долгота")
 ):
+    if not re.match(r'^[a-zA-Z\s]+$', city):
+        raise HTTPException(status_code=400, detail="City name must only contain English letters")
     try:
         await weather_service.add_city_to_tracking(City(name=city, latitude=latitude, longitude=longitude))
     except:
@@ -52,7 +44,7 @@ async def add_city(
 @main_router.get(
     "/cities/tracked"
 )
-async def get_all_tracked_cities(weather_service: WeatherService = Depends(get_weather_service)):
+async def get_all_tracked_cities():
     try:
         return await weather_service.get_tracked_cities()
     except:
