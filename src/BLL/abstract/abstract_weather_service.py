@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from DAL.schemas import City, CurrentWeather
+from DAL.schemas import City, CurrentWeather, CityForecastRequest
 from DAL.abstract.abstract_repository import IRepository
 from .abstract_http_client import IHttpClient
 
@@ -15,7 +15,7 @@ class IWeatherService(ABC):
         pass
 
     @abstractmethod
-    async def update_all_forecasts(self, city: City):
+    async def update_all_forecasts(self):
         pass
 
     @abstractmethod
@@ -24,4 +24,8 @@ class IWeatherService(ABC):
 
     @abstractmethod
     async def get_current_weather_by_coordinates(self, latitude: float, longitude: float) -> CurrentWeather:
+        pass
+
+    @abstractmethod
+    async def get_city_forecast(self, request: CityForecastRequest):
         pass

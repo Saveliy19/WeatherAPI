@@ -8,6 +8,7 @@ class HttpClient(IHttpClient):
         async with ClientSession() as session:
             async with session.get(request.url, params=request.params) as response:
                 if response.status != 200:
-                    raise Exception(f"Error fetching weather data: {response.status}")
+                    error_text = await response.text()  # Ждем текст ошибки
+                    raise Exception(f"Error fetching weather data: {response.status} - {error_text}")
                 
                 return await response.json()

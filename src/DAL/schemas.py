@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class City(BaseModel):
@@ -21,3 +21,16 @@ class HourlyForecast(CurrentWeather):
 class Request(BaseModel):
     params: Optional[dict] = {}
     url: str
+
+class CityForecastRequest(BaseModel):
+    name: str
+    timestamp: datetime
+    params: List[str]
+
+class CityForecastResponse(BaseModel):
+    city_name: str
+    temperature: Optional[str] = None
+    wind_speed: Optional[str] = None
+    atmospheric_pressure: Optional[str] = None
+    precipitation: Optional[str] = None
+    humidity: Optional[str] = None
