@@ -1,10 +1,10 @@
 from .abstract.abstract_repository import IRepository
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from .models import City as dbCity, WeatherData
 from .schemas import City as dtoCity, HourlyForecast as dtoForecast, CityForecastRequest, CityForecastResponse
 from .database import get_db
 from typing import List
+from .exceptions import ObjectNotFoundException
 
 
 class Repository(IRepository):
@@ -62,7 +62,7 @@ class Repository(IRepository):
             city = city.scalar_one_or_none()
 
             if not city:
-                raise ValueError(f"Город с названием {request.name} не найден в базе данных.")
+                raise ObjectNotFoundException(f"Город с названием {request.name} не найден в базе данных.")
 
             query = select(WeatherData).filter(
                 WeatherData.city_id == city.id,

@@ -2,10 +2,8 @@ from .abstract.abstract_weather_service import IWeatherService
 from DAL.schemas import City, CurrentWeather, Request, HourlyForecast, CityForecastRequest, CityForecastResponse
 from typing import List
 import aiohttp
-from fastapi import HTTPException
 from .abstract.abstract_http_client import IHttpClient
 import asyncio
-from datetime import datetime, date
 
 class WeatherService(IWeatherService):
     async def get_tracked_cities(self) -> List[City]:
@@ -48,11 +46,15 @@ class WeatherService(IWeatherService):
         }
 
         request = Request(params=params, url=url)
-                
-        data = await self.http_client.get_data(request=request)
+        
+        try:       
+            data = await self.http_client.get_data(request=request)
+        except:
+            raise
         current_weather_data = data.get("current")
         current_weather_units = data.get("current_units")
 
+        print(current_weather_data)
         weather = CurrentWeather(
             temperature=str(current_weather_data.get("temperature_2m")) + current_weather_units.get("temperature_2m"),
             wind_speed=str(current_weather_data.get("wind_speed_10m")) + current_weather_units.get("wind_speed_10m"),
